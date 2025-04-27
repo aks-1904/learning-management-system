@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { UserRole, UserSchema } from "../types/schema.js";
-import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema<UserSchema>(
   {
@@ -17,6 +16,7 @@ const userSchema = new mongoose.Schema<UserSchema>(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     role: {
       type: String,
