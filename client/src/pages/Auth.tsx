@@ -10,8 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useLoginUserMutation,
+  useRegisterUserMutation,
+} from "@/features/api/authapi";
 import { LoginForm, RegisterForm } from "@/types/form";
-import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Auth = () => {
   const [registerInput, setRegisterInput] = useState<RegisterForm>({
@@ -25,6 +31,25 @@ const Auth = () => {
     password: "",
   });
 
+  const [
+    registerUser,
+    {
+      data: registerData,
+      error: registerErr,
+      isLoading: registerLoading,
+      isSuccess: registerSuccess,
+    },
+  ] = useRegisterUserMutation();
+  const [
+    loginUser,
+    {
+      data: loginData,
+      error: loginErr,
+      isLoading: loginLoading,
+      isSuccess: loginSuccess,
+    },
+  ] = useLoginUserMutation();
+
   const valueChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
@@ -37,12 +62,34 @@ const Auth = () => {
   };
 
   const registerHandler = async () => {
-    console.log(registerInput);
+    await registerUser(registerData);
   };
 
   const loginHandler = async () => {
-    console.log(loginInput);
+    await loginUser(loginData);
   };
+
+  useEffect(() => {
+    if (registerSuccess && registerData) {
+      toast.success(registerData.message || "Register successfully");
+    }
+    if (registerErr) {
+      toast.error(registerData.data.message || "Registration Failed");
+    }
+    if (loginSuccess && loginData) {
+      toast.success(loginData.message || "Login successfully");
+    }
+    if (loginErr) {
+      toast.error(loginData.data.message || "Login Failed");
+    }
+  }, [
+    loginData,
+    loginLoading,
+    loginErr,
+    registerLoading,
+    registerData,
+    registerErr,
+  ]);
 
   return (
     <div className="flex justify-center items-center h-screen">
@@ -108,11 +155,18 @@ const Auth = () => {
             </CardContent>
             <CardFooter>
               <Button
-                type="submit"
-                className="cursor-pointer w-full"
+                disabled={registerLoading}
+                className="w-full cursor-pointer"
                 onClick={registerHandler}
               >
-                Register
+                {registerLoading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2 h-4 w-4" /> Please
+                    Wait...
+                  </>
+                ) : (
+                  "Register"
+                )}
               </Button>
             </CardFooter>
           </Card>
@@ -150,8 +204,19 @@ const Auth = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full cursor-pointer" onClick={loginHandler}>
-                Login
+              <Button
+                disabled={loginLoading}
+                className="w-full cursor-pointer"
+                onClick={loginHandler}
+              >
+                {loginLoading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2 h-4 w-4" /> Please
+                    Wait...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </CardFooter>
           </Card>

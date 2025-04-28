@@ -12,4 +12,6 @@ export interface UserSchema extends Document {
   role: UserRole;
   enrolledCourses: mongoose.Schema.Types.ObjectId[]; // Reference to Course
   profilePicture: string;
+  createdAt: string;
+  updatedAt: string;
 }
