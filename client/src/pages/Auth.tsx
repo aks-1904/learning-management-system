@@ -17,9 +17,13 @@ import {
 import { LoginForm, RegisterForm } from "@/types/form";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Auth = () => {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   const [registerInput, setRegisterInput] = useState<RegisterForm>({
     name: "",
     email: "",
@@ -78,6 +82,9 @@ const Auth = () => {
     }
     if (loginSuccess && loginData) {
       toast.success(loginData.message || "Login successfully");
+      navigate("/", {
+        replace: true,
+      });
     }
     if (loginErr) {
       toast.error(loginData.data.message || "Login Failed");
@@ -93,7 +100,10 @@ const Auth = () => {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <Tabs defaultValue="login" className="w-[400px]">
+      <Tabs
+        defaultValue={pathname === "/login" ? "login" : "register"}
+        className="w-[400px]"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="register">Register</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>
