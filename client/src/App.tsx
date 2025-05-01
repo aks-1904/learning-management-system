@@ -3,6 +3,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import Hero from "./pages/student/Hero";
 import MainLayout from "./layout/MainLayout";
 import Auth from "./pages/Auth";
+import Courses from "./pages/student/Courses";
 
 const appRouter = createBrowserRouter([
   {
@@ -14,7 +15,7 @@ const appRouter = createBrowserRouter([
         element: (
           <>
             <Hero />
-            {/* CoursesSection */}
+            <Courses />
           </>
         ),
       },
