@@ -1,6 +1,7 @@
 import { LoginForm, RegisterForm } from "@/types/form";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedIn } from "../authSlice";
+import { profileData } from "@/types/data";
 
 const USER_API = `${import.meta.env.VITE_BACKEND_URL}/user/`;
 
@@ -33,7 +34,17 @@ export const authApi = createApi({
         }
       },
     }),
+    loadUser: builder.query<profileData, void>({
+      query: () => ({
+        url: "profile",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useRegisterUserMutation, useLoginUserMutation } = authApi;
+export const {
+  useRegisterUserMutation,
+  useLoginUserMutation,
+  useLoadUserQuery,
+} = authApi;

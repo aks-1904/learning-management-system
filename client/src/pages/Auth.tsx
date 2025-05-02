@@ -66,36 +66,56 @@ const Auth = () => {
   };
 
   const registerHandler = async () => {
-    await registerUser(registerData);
+    if (registerInput.password === registerInput.confirmPassword) {
+      await registerUser(registerInput);
+    } else {
+      toast.error("Password not match");
+    }
   };
 
   const loginHandler = async () => {
-    await loginUser(loginData);
+    await loginUser(loginInput);
   };
 
   useEffect(() => {
     if (registerSuccess && registerData) {
-      toast.success(registerData.message || "Register successfully");
+      toast.success(registerData?.message || "Register successfully");
+      setRegisterInput({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
     }
     if (registerErr) {
-      toast.error(registerData.data.message || "Registration Failed");
+      const message =
+        "data" in registerErr
+          ? (registerErr.data as { message?: string })?.message
+          : "Registration Failed";
+      toast.error(message);
     }
     if (loginSuccess && loginData) {
       toast.success(loginData.message || "Login successfully");
+      setLoginInput({ email: "", password: "" });
       navigate("/", {
         replace: true,
       });
     }
     if (loginErr) {
-      toast.error(loginData.data.message || "Login Failed");
+      const message =
+        "data" in loginErr
+          ? (loginErr.data as { message?: string })?.message
+          : "Login Failed";
+      toast.error(message);
     }
   }, [
     loginData,
-    loginLoading,
     loginErr,
-    registerLoading,
+    loginSuccess,
     registerData,
     registerErr,
+    registerSuccess,
+    navigate,
   ]);
 
   return (

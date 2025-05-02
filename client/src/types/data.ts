@@ -15,3 +15,8 @@ export interface User{
     createdAt: string;
     updatedAt: string;
 }
+
+export interface profileData{
+    success: boolean;
+    user: User;
+}

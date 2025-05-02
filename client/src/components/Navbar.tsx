@@ -20,9 +20,11 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const user = true;
+  const navigate = useNavigate();
 
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 w-full left-0 right-0 duration-300 z-10 px-10">
@@ -43,8 +45,12 @@ const Navbar = () => {
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>My learning</DropdownMenuItem>
-                <DropdownMenuItem>Edit Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/my-learning")}>
+                  My learning
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  Edit Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem className="flex justify-between">
                   Logout <LogOut />
                 </DropdownMenuItem>
@@ -75,6 +81,8 @@ const Navbar = () => {
 export default Navbar;
 
 const MobileNavbar = () => {
+  const navigate = useNavigate();
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -93,10 +101,16 @@ const MobileNavbar = () => {
         </SheetHeader>
         <Separator className="mr-2" />
         <nav className="flex flex-col space-y-1 text-sm font-medium">
-          <span className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md">
+          <span
+            className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
+            onClick={() => navigate("/my-learning")}
+          >
             My Learning
           </span>
-          <span className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md">
+          <span
+            className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
+            onClick={() => navigate("/profile")}
+          >
             Edit Profile
           </span>
           <span className="cursor-pointer bg-purple-400 text-white hover:bg-purple-500 px-4 py-2 rounded-md text-center mt-3">
