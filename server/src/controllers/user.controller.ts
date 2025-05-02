@@ -3,6 +3,7 @@ import { LoginData, RegisterData } from "../types/data.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
+import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
 export const register = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -98,6 +99,114 @@ export const login = async (req: Request, res: Response): Promise<any> => {
     return res.status(500).json({
       success: false,
       message: "Failed to login",
+    });
+  }
+};
+
+export const logout = async (_: Request, res: Response): Promise<any> => {
+  try {
+    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+      // setting token to empty string
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to logout",
+    });
+  }
+};
+
+export const getUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId = req.id; // getting user id
+
+    const user = await User.findById(userId);
+    if (!user) {
+      // checking user if null
+      return res.status(404).json({
+        message: "Profile not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get your profile data",
+    });
+  }
+};
+
+export const updateProfile = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId = req.id;
+    const { name } = req.body;
+    const profilePicture = req.file;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      // returning user if null
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // extract publicId of the old image from the url if it is exist
+    if (user?.profilePicture?.trim()) {
+      const publicId = user.profilePicture.split("/").pop()?.split(".")[0];
+      if (publicId) {
+        deleteMediaFromCloudinary(publicId);
+      }
+    }
+
+    // upload new photo
+    if (profilePicture) {
+      const cloudResponse = await uploadMedia(profilePicture.path);
+      const profileUrl = cloudResponse?.secure_url;
+
+      const updatedData = { name, profilePicture: profileUrl };
+      const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+        new: true,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        user: updatedUser,
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Update profile failed",
     });
   }
 };
