@@ -12,14 +12,65 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLoadUserQuery } from "@/features/api/authapi";
+import {
+  useLoadUserQuery,
+  useUpdateUserMutation,
+} from "@/features/api/authapi";
+import { UpdateProfile } from "@/types/form";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Profile = () => {
-  const { data, isLoading } = useLoadUserQuery();
+  const { data, isLoading, refetch } = useLoadUserQuery();
+  const [
+    updateUser,
+    {
+      data: updatedUserData,
+      isLoading: updateLoading,
+      error,
+      isSuccess,
+      isError,
+    },
+  ] = useUpdateUserMutation();
 
-  if (isLoading) return <h1>Profile Loading...</h1>;
+  const [updateProfileData, setUpdateProfileData] = useState<UpdateProfile>({
+    name: "",
+    profilePicture: null,
+  });
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file)
+      setUpdateProfileData({ ...updateProfileData, profilePicture: file });
+  };
+
   const enrolledCourses: any[] | undefined = data?.user?.enrolledCourses;
+
+  const updateProfileHandler = async () => {
+    const formData = new FormData();
+    formData.append("name", updateProfileData.name);
+    if (updateProfileData.profilePicture) {
+      formData.append("profilePicture", updateProfileData.profilePicture);
+    }
+
+    await updateUser(formData);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch();
+      toast.success(updatedUserData?.message || "Profile updated");
+    }
+    if (isError) {
+      const message =
+        "data" in error
+          ? (error.data as { message?: string })?.message
+          : "Some error occured";
+      toast.error(message);
+    }
+  }, [error, updatedUserData, isSuccess]);
+  if (isLoading) return <h1>Profile Loading...</h1>;
 
   return (
     <div className="max-w-4xl mx-auto my-24 px-4">
@@ -85,6 +136,12 @@ const Profile = () => {
                       id="name"
                       placeholder="Name..."
                       defaultValue={data?.user?.name}
+                      onChange={(e) =>
+                        setUpdateProfileData({
+                          ...updateProfileData,
+                          name: e.target.value,
+                        })
+                      }
                       className="col-span-3"
                     />
                   </div>
@@ -97,17 +154,20 @@ const Profile = () => {
                       accept="image/*"
                       type="file"
                       className="col-span-3"
+                      onChange={(e) => onChangeHandler(e)}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  {isLoading ? (
+                  {updateLoading ? (
                     <Button disabled>
                       <Loader2 className="animate-spin mr-2 h-4 w-4" /> Please
                       Wait...
                     </Button>
                   ) : (
-                    <Button type="submit">Save Changes</Button>
+                    <Button onClick={updateProfileHandler} type="submit">
+                      Save Changes
+                    </Button>
                   )}
                 </DialogFooter>
               </DialogContent>

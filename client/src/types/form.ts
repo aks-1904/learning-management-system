@@ -9,3 +9,8 @@ export interface LoginForm {
   email: string;
   password: string;
 }
+
+export interface UpdateProfile {
+  name: string;
+  profilePicture: File | null;
+}

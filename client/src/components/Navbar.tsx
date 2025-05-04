@@ -21,10 +21,24 @@ import {
 } from "./ui/sheet";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { useLogoutUserMutation } from "@/features/api/authapi";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const user = true;
   const navigate = useNavigate();
+
+  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate("/login", {
+        replace: true,
+      });
+      toast.success(data?.message || "Logged out successfully");
+    }
+  }, [isSuccess]);
 
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 w-full left-0 right-0 duration-300 z-10 px-10">
@@ -51,7 +65,10 @@ const Navbar = () => {
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   Edit Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex justify-between">
+                <DropdownMenuItem
+                  onClick={async () => await logoutUser()}
+                  className="flex justify-between"
+                >
                   Logout <LogOut />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -82,6 +99,13 @@ export default Navbar;
 
 const MobileNavbar = () => {
   const navigate = useNavigate();
+  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Logged out successfully");
+    }
+  }, [isSuccess]);
 
   return (
     <Sheet>
@@ -119,7 +143,9 @@ const MobileNavbar = () => {
         </nav>
         <SheetFooter>
           <SheetClose asChild>
-            <Button type="submit">Logout</Button>
+            <Button onClick={async () => await logoutUser()} type="submit">
+              Logout
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
