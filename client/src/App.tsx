@@ -6,6 +6,8 @@ import Auth from "./pages/Auth";
 import Courses from "./pages/student/Courses";
 import MyLearning from "./pages/student/MyLearning";
 import Profile from "./pages/student/Profile";
+import { Provider } from "react-redux";
+import { appStore } from "@/app/store";
 
 const appRouter = createBrowserRouter([
   {
@@ -43,11 +45,13 @@ const appRouter = createBrowserRouter([
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <main>
-        <RouterProvider router={appRouter} />
-      </main>
-    </ThemeProvider>
+    <Provider store={appStore}>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <main>
+          <RouterProvider router={appRouter} />
+        </main>
+      </ThemeProvider>
+    </Provider>
   );
 };
 

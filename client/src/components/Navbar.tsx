@@ -24,9 +24,11 @@ import { useNavigate } from "react-router-dom";
 import { useLogoutUserMutation } from "@/features/api/authapi";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import type { RootState } from "@/types/slice";
+import { useAppSelector } from "@/app/hooks";
 
 const Navbar = () => {
-  const user = true;
+  const user = useAppSelector((store: RootState) => store?.auth?.user);
   const navigate = useNavigate();
 
   const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
@@ -43,7 +45,12 @@ const Navbar = () => {
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 w-full left-0 right-0 duration-300 z-10 px-10">
       <div className="flex max-w-7xl mx-auto items-center justify-between gap-10 h-full">
-        <div className="flex gap-2 items-center">
+        <div
+          className="flex gap-2 items-center cursor-pointer"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
           <School size={30} />
           <h1 className="font-extrabold text-2xl">Learn-Eas</h1>
         </div>
@@ -52,7 +59,7 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger className="cursor-pointer">
                 <Avatar>
-                  <AvatarImage src="" />
+                  <AvatarImage src={user?.profilePicture} />
                   <AvatarFallback>AK</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>

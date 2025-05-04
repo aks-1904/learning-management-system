@@ -7,3 +7,10 @@ export const appStore = configureStore({
   middleware: (defaultMiddleware) =>
     defaultMiddleware().concat(authApi.middleware),
 });
+
+const initializeApp = async () => {
+  await appStore.dispatch(
+    authApi.endpoints.loadUser.initiate(undefined, { forceRefetch: true })
+  );
+};
+initializeApp();
