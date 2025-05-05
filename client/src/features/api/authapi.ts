@@ -1,6 +1,6 @@
 import { LoginForm, RegisterForm } from "@/types/form";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { userLoggedIn } from "../authSlice";
+import { userLoggedIn, userLoggedOut } from "../authSlice";
 import { profileData } from "@/types/data";
 
 const USER_API = `${import.meta.env.VITE_BACKEND_URL}/user/`;
@@ -60,6 +60,14 @@ export const authApi = createApi({
         url: "logout",
         method: "GET",
       }),
+      async onQueryStarted(_, { queryFulfilled, dispatch }) {
+        try {
+          await queryFulfilled;
+          dispatch(userLoggedOut());
+        } catch (error) {
+          console.log(error);
+        }
+      },
     }),
   }),
 });

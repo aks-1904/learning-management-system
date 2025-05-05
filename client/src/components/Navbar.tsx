@@ -22,7 +22,7 @@ import {
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useLogoutUserMutation } from "@/features/api/authapi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { RootState } from "@/types/slice";
 import { useAppSelector } from "@/app/hooks";
@@ -79,17 +79,26 @@ const Navbar = () => {
                   Logout <LogOut />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="focus:bg-transparent">
-                  <Button className="w-full h-full bg-purple-300 hover:bg-purple-400 text-black cursor-pointer">
-                    Dashboard
-                  </Button>
-                </DropdownMenuItem>
+                {user?.role?.toLowerCase() === "instructor" && (
+                  <DropdownMenuItem className="focus:bg-transparent">
+                    <Button className="w-full h-full bg-purple-300 hover:bg-purple-400 text-black cursor-pointer">
+                      Dashboard
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant={"outline"}>Login</Button>
-              <Button>Register</Button>
+              <Button
+                variant={"outline"}
+                onClick={() => navigate("/login", { replace: true })}
+              >
+                Login
+              </Button>
+              <Button onClick={() => navigate("/register", { replace: true })}>
+                Register
+              </Button>
             </div>
           )}
           <ModeToggle />
@@ -105,8 +114,11 @@ const Navbar = () => {
 export default Navbar;
 
 const MobileNavbar = () => {
+  const user = useAppSelector((store: RootState) => store?.auth?.user);
   const navigate = useNavigate();
   const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (isSuccess) {
@@ -115,7 +127,7 @@ const MobileNavbar = () => {
   }, [isSuccess]);
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={() => setOpen(!open)}>
       <SheetTrigger asChild>
         <Button
           size={"icon"}
@@ -131,30 +143,56 @@ const MobileNavbar = () => {
           <ModeToggle />
         </SheetHeader>
         <Separator className="mr-2" />
-        <nav className="flex flex-col space-y-1 text-sm font-medium">
-          <span
-            className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
-            onClick={() => navigate("/my-learning")}
-          >
-            My Learning
-          </span>
-          <span
-            className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
-            onClick={() => navigate("/profile")}
-          >
-            Edit Profile
-          </span>
-          <span className="cursor-pointer bg-purple-400 text-white hover:bg-purple-500 px-4 py-2 rounded-md text-center mt-3">
-            Dashboard
-          </span>
-        </nav>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button onClick={async () => await logoutUser()} type="submit">
-              Logout
+        {user ? (
+          <>
+            <nav className="flex flex-col space-y-1 text-sm font-medium">
+              <span
+                className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
+                onClick={() => navigate("/my-learning")}
+              >
+                My Learning
+              </span>
+              <span
+                className="cursor-pointer hover:bg-gray-100 px-3 py-2 dark:hover:bg-gray-800 rounded-md"
+                onClick={() => navigate("/profile")}
+              >
+                Edit Profile
+              </span>
+              {user?.role?.toLowerCase() === "instructor" && (
+                <span className="cursor-pointer bg-purple-400 text-white hover:bg-purple-500 px-4 py-2 rounded-md text-center mt-3">
+                  Dashboard
+                </span>
+              )}
+            </nav>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button onClick={async () => await logoutUser()} type="submit">
+                  Logout
+                </Button>
+              </SheetClose>
+            </SheetFooter>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                navigate("/login", { replace: true });
+                setOpen(false);
+              }}
+            >
+              Login
             </Button>
-          </SheetClose>
-        </SheetFooter>
+            <Button
+              onClick={() => {
+                navigate("/register", { replace: true });
+                setOpen(false);
+              }}
+            >
+              Register
+            </Button>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
