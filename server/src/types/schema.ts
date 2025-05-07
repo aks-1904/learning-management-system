@@ -5,6 +5,12 @@ export enum UserRole {
   Student = "student",
 }
 
+export enum CourseLevel {
+  Beginner = "beginner",
+  Medium = "medium",
+  Advance = "advance",
+}
+
 export interface UserSchema extends Document {
   name: string;
   email: string;
@@ -14,4 +20,18 @@ export interface UserSchema extends Document {
   profilePicture: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CourseSchema extends Document {
+  title: string;
+  subTitle: string;
+  description: string;
+  category: string;
+  level: CourseLevel;
+  price: number;
+  thumbnail: string;
+  enrolledStudents: mongoose.Schema.Types.ObjectId[]; // Reference to User
+  lectures: mongoose.Schema.Types.ObjectId[]; // Reference to Lecture
+  creator: mongoose.Schema.Types.ObjectId; // Reference to User
+  isPublished: boolean;
 }

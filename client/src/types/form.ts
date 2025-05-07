@@ -14,3 +14,8 @@ export interface UpdateProfile {
   name: string;
   profilePicture: File | null;
 }
+
+export interface CreateCourse {
+  title: string;
+  category: string;
+}

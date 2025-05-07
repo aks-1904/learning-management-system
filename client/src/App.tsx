@@ -8,6 +8,10 @@ import MyLearning from "./pages/student/MyLearning";
 import Profile from "./pages/student/Profile";
 import { Provider } from "react-redux";
 import { appStore } from "@/app/store";
+import Dashboard from "./pages/admin/Dashboard";
+import CoursesAdmin from "./pages/admin/course/Courses";
+import Sidebar from "./pages/admin/Sidebar";
+import AddCourse from "./pages/admin/course/AddCourse";
 
 const appRouter = createBrowserRouter([
   {
@@ -38,6 +42,26 @@ const appRouter = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
+      },
+
+      // Instructor routes
+      {
+        path: "/instructor",
+        element: <Sidebar />,
+        children: [
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "courses",
+            element: <CoursesAdmin />,
+          },
+          {
+            path: "create-course",
+            element: <AddCourse />,
+          },
+        ],
       },
     ],
   },

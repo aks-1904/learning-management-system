@@ -81,7 +81,10 @@ const Navbar = () => {
                 <DropdownMenuSeparator />
                 {user?.role?.toLowerCase() === "instructor" && (
                   <DropdownMenuItem className="focus:bg-transparent">
-                    <Button className="w-full h-full bg-purple-300 hover:bg-purple-400 text-black cursor-pointer">
+                    <Button
+                      className="w-full h-full bg-purple-300 hover:bg-purple-400 text-black cursor-pointer"
+                      onClick={() => navigate("/admin/dashboard")}
+                    >
                       Dashboard
                     </Button>
                   </DropdownMenuItem>
@@ -159,7 +162,10 @@ const MobileNavbar = () => {
                 Edit Profile
               </span>
               {user?.role?.toLowerCase() === "instructor" && (
-                <span className="cursor-pointer bg-purple-400 text-white hover:bg-purple-500 px-4 py-2 rounded-md text-center mt-3">
+                <span
+                  onClick={() => navigate("/admin/dashboard")}
+                  className="cursor-pointer bg-purple-400 text-white hover:bg-purple-500 px-4 py-2 rounded-md text-center mt-3"
+                >
                   Dashboard
                 </span>
               )}

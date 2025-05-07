@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./database/db.js";
 import userRoutes from "./routes/user.route.js";
+import courseRoutes from "./routes/course.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -23,6 +24,7 @@ app.use(
 
 //apis
 app.use("/user", userRoutes);
+app.use("/course", courseRoutes);
 
 app.listen(PORT, async () => {
   // server listening
