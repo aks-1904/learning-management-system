@@ -48,3 +48,34 @@ export const createCourse = async (
     });
   }
 };
+
+export const getInstructorCourses = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId = req.id;
+    const courses = await Course.find({ creator: userId });
+
+    if (!courses) {
+      return res.status(404).json({
+        success: false,
+        courses: [],
+        message: "Courses not found",
+      });
+    }
+
+    return res.status(200).json({
+      courses,
+      message: "",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      courses: [],
+      message: "Not able to get your courses, try again later",
+    });
+  }
+};

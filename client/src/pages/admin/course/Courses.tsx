@@ -4,61 +4,21 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useGetInstructorCoursesQuery } from "@/features/api/courseapi";
+import { Course } from "@/types/data";
+import { Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Courses = () => {
-  // Sample data to be remove in future
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-  ];
-
+  const { data, isLoading } = useGetInstructorCoursesQuery();
   const navigate = useNavigate();
+
+  if (isLoading) return <h1>Loading....</h1>;
+  console.log(data);
 
   return (
     <div>
@@ -66,7 +26,7 @@ const Courses = () => {
         Create a new Course
       </Button>
       <Table className="mt-10">
-        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableCaption>List of your Courses</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
@@ -76,23 +36,25 @@ const Courses = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="text-right">
-                {invoice.totalAmount}
+          {data?.courses?.map((course: Course) => (
+            <TableRow key={course?._id}>
+              <TableCell className="font-medium">{course?.title}</TableCell>
+              <TableCell>{course?.price || "NA"}</TableCell>
+              <TableCell
+                className={`${
+                  course?.isPublished ? "text-green-600" : "text-red-600"
+                } font-bold`}
+              >
+                {course?.isPublished ? "Published" : "Unpublished"}
+              </TableCell>
+              <TableCell className="text-end">
+                <Button size={"sm"} variant={"outline"}>
+                  <Edit /> Edit
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter>
       </Table>
     </div>
   );
