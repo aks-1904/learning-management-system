@@ -48,7 +48,11 @@ const Courses = () => {
                 {course?.isPublished ? "Published" : "Unpublished"}
               </TableCell>
               <TableCell className="text-end">
-                <Button size={"sm"} variant={"outline"}>
+                <Button
+                  size={"sm"}
+                  variant={"outline"}
+                  onClick={() => navigate(`/instructor/course/${course?._id}`)}
+                >
                   <Edit /> Edit
                 </Button>
               </TableCell>

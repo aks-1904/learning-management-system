@@ -141,9 +141,12 @@ const MobileNavbar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent className="px-8">
-        <SheetHeader className="flex flex-row items-center justify-between px-0">
+        <SheetHeader className="flex flex-row items-center justify-between px-0 z-[999]">
           <SheetTitle>Learn-Eas</SheetTitle>
+          <div className="z-[999]">
+
           <ModeToggle />
+          </div>
         </SheetHeader>
         <Separator className="mr-2" />
         {user ? (

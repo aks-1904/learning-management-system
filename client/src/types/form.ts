@@ -19,3 +19,13 @@ export interface CreateCourse {
   title: string;
   category: string;
 }
+
+export interface CourseDetails {
+  title: string;
+  subTitle: string;
+  category: string;
+  description: string;
+  level: string;
+  price: Number | undefined;
+  thumbnail: File | null;
+}
