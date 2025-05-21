@@ -17,19 +17,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEditCourseMutation } from "@/features/api/courseapi";
 import { CourseDetails } from "@/types/form";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const CourseTab = () => {
   const isPublished = false;
-  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const [previewThumbail, setPreviewThumbail] = useState<
     string | ArrayBuffer | null
   >(null);
+  const { courseId } = useParams();
 
   const [input, setInput] = useState<CourseDetails>({
     title: "",
@@ -56,18 +57,44 @@ const CourseTab = () => {
     }
   };
 
+  const [editCourse, { data, isLoading, isSuccess, error }] =
+    useEditCourseMutation();
+
   const updateCourseHandler = async () => {
-    setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("title", input.title);
+      formData.append("subTitle", input.subTitle);
+      formData.append("category", input.category);
+      formData.append("description", input.description);
+      formData.append("level", input.level);
+      if (input.price) {
+        formData.append("price", input.price.toString());
+      }
+      if (input.thumbnail) {
+        formData.append("thumbnail", input.thumbnail);
+      }
+      await editCourse({ formData, courseId });
     } catch (error: any) {
       console.log(error);
       toast.error(
         error?.response?.data?.message || "Couldn't complete your request"
       );
-    } finally {
-      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Course updated");
+    }
+    if (error) {
+      const message =
+        "data" in error
+          ? (error.data as { message?: string })?.message
+          : "Failed to update course";
+      toast.error(message);
+    }
+  }, []);
 
   return (
     <div>
@@ -202,8 +229,8 @@ const CourseTab = () => {
               >
                 Cancel
               </Button>
-              <Button disabled={loading} onClick={updateCourseHandler}>
-                {loading ? (
+              <Button disabled={isLoading} onClick={updateCourseHandler}>
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
                     Wait...

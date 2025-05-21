@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Course } from "../models/course.model.js";
 import { User } from "../models/user.model.js";
 import { UserRole } from "../types/schema.js";
+import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
 export const createCourse = async (
   req: Request,
@@ -76,6 +77,59 @@ export const getInstructorCourses = async (
       success: false,
       courses: [],
       message: "Not able to get your courses, try again later",
+    });
+  }
+};
+
+export const editCourse = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const id = req.params.id;
+    const { title, subTitle, description, category, level, price } = req.body;
+    const thumbnail = req.file;
+
+    let course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+        success: false,
+      });
+    }
+
+    let courseThumbnail;
+
+    if (thumbnail) {
+      if (course.thumbnail) {
+        const publicId = course.thumbnail?.split("/")?.pop()!.split(".")[0];
+        await deleteMediaFromCloudinary(publicId);
+      }
+
+      courseThumbnail = await uploadMedia(thumbnail.path);
+    }
+
+    const updatedData = {
+      title,
+      subTitle,
+      description,
+      category,
+      level,
+      price,
+      thumbnail: courseThumbnail?.secure_url,
+    };
+
+    course = await Course.findByIdAndUpdate(id, updatedData, { new: true });
+
+    await course!.save();
+
+    return res.status(200).json({
+      course,
+      success: true,
+      message: "Course updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to edit course",
     });
   }
 };
