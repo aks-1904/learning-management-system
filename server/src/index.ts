@@ -5,6 +5,7 @@ import userRoutes from "./routes/user.route.js";
 import courseRoutes from "./routes/course.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import morgan from "morgan";
 
 dotenv.config();
 connectDB(); // connecting database
@@ -21,6 +22,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(morgan("dev"));
 
 //apis
 app.use("/user", userRoutes);

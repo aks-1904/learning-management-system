@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Course } from "../models/course.model.js";
 import { User } from "../models/user.model.js";
-import { UserRole } from "../types/schema.js";
+import { CourseLevel, UserRole } from "../types/schema.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
 export const createCourse = async (
@@ -83,9 +83,25 @@ export const getInstructorCourses = async (
 
 export const editCourse = async (req: Request, res: Response): Promise<any> => {
   try {
-    const id = req.params.id;
-    const { title, subTitle, description, category, level, price } = req.body;
+    const { id } = req.params;
+    const { title, description, category, level, price } = req.body;
+    let { subTitle } = req.body;
     const thumbnail = req.file;
+
+    if (subTitle === "undefined") subTitle = null;
+
+    if (
+      !(
+        level.toLowerCase() === CourseLevel.Beginner ||
+        level.toLowerCase() === CourseLevel.Medium ||
+        level.toLowerCase() === CourseLevel.Advance
+      )
+    ) {
+      return res.status(404).json({
+        message: "Course Level is required",
+        success: false,
+      });
+    }
 
     let course = await Course.findById(id);
     if (!course) {
@@ -111,7 +127,7 @@ export const editCourse = async (req: Request, res: Response): Promise<any> => {
       subTitle,
       description,
       category,
-      level,
+      level: level.toLowerCase(),
       price,
       thumbnail: courseThumbnail?.secure_url,
     };
@@ -130,6 +146,34 @@ export const editCourse = async (req: Request, res: Response): Promise<any> => {
     return res.status(500).json({
       success: false,
       message: "Failed to edit course",
+    });
+  }
+};
+
+export const getCourseById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      course,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to get course data",
+      success: false,
     });
   }
 };

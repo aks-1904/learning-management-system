@@ -33,6 +33,13 @@ export const courseApi = createApi({
         method: "PUT",
         body: formData,
       }),
+      invalidatesTags: ["Refetch-Instructor-Courses"],
+    }),
+    getCourseById: builder.query({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "GET",
+      }),
     }),
   }),
 });
@@ -41,4 +48,5 @@ export const {
   useCreateCourseMutation,
   useGetInstructorCoursesQuery,
   useEditCourseMutation,
+  useGetCourseByIdQuery,
 } = courseApi;

@@ -21,6 +21,7 @@ export interface CreateCourse {
 }
 
 export interface CourseDetails {
+  _id: string;
   title: string;
   subTitle: string;
   category: string;
@@ -28,4 +29,7 @@ export interface CourseDetails {
   level: string;
   price: Number | undefined;
   thumbnail: File | null;
+  __v?: Number | null,
+  createdAt?: string;
+  updatedAt?: string;
 }
