@@ -35,3 +35,10 @@ export interface CourseSchema extends Document {
   creator: mongoose.Schema.Types.ObjectId; // Reference to User
   isPublished: boolean;
 }
+
+export interface LectureSchema extends Document{
+  title: string;
+  videoUrl: string;
+  publicId: string;
+  isPreviewFree: boolean;
+}

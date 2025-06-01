@@ -40,3 +40,19 @@ export interface CourseData{
     courses: Course[];
     success: boolean
 }
+
+export interface Lecture{
+    _id: string;
+    title: string;
+    __v: number;
+    createdAt: string;
+    updatedAt: string;
+    videoUrl?: string;
+    publicId?: string;
+    isPreviewFree: boolean;
+}
+
+export interface LectureData{
+    success: boolean;
+    lectures?: Lecture[];
+}

@@ -54,8 +54,7 @@ const CourseTab = () => {
     if (course) {
       setInput(course);
     }
-    console.log(course);
-  }, [courseId, course, courseDataById]);
+  }, [courseDataById]);
 
   const onValueChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -90,7 +89,6 @@ const CourseTab = () => {
       if (input.thumbnail) {
         formData.append("thumbnail", input.thumbnail);
       }
-      console.log(courseId || course?._id);
       const id = courseId || course?._id;
       await editCourse({ formData, id });
     } catch (error: any) {

@@ -3,6 +3,8 @@ import { Course } from "../models/course.model.js";
 import { User } from "../models/user.model.js";
 import { CourseLevel, UserRole } from "../types/schema.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
+import { Lecture } from "../models/lecture.model.js";
+import mongoose from "mongoose";
 
 export const createCourse = async (
   req: Request,
@@ -173,6 +175,84 @@ export const getCourseById = async (
     console.log(error);
     return res.status(500).json({
       message: "Failed to get course data",
+      success: false,
+    });
+  }
+};
+
+export const createLecture = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { title } = req.body;
+    const { id } = req.params;
+
+    if (!id) {
+      return;
+    }
+
+    if (!title) {
+      return res.status(404).json({
+        message: "Lecture Title required",
+        success: false,
+      });
+    }
+
+    if (!id) {
+      return res.status(404).json({
+        message: "Some error occured, try again later",
+        success: false,
+      });
+    }
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+        success: false,
+      });
+    }
+
+    const lecture = await Lecture.create({ title });
+    course.lectures.push(lecture._id as mongoose.Schema.Types.ObjectId);
+    course.save();
+
+    return res.status(201).json({
+      lecture,
+      message: "Lecture created successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to create lecture",
+      success: false,
+    });
+  }
+};
+
+export const getLectures = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const course = await Course.findById(id).populate("lectures");
+    if (!course) {
+      return res.status(404).json({
+        messgae: "Course not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      lectures: course.lectures,
+      success: true,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to get lectures",
       success: false,
     });
   }
