@@ -6,7 +6,7 @@ const COURSE_API = `${import.meta.env.VITE_BACKEND_URL}/course/`;
 
 export const courseApi = createApi({
   reducerPath: "courseApi",
-  tagTypes: ["Refetch-Instructor-Courses"],
+  tagTypes: ["Refetch-Instructor-Courses", "Refetch_Lecture"],
   baseQuery: fetchBaseQuery({
     baseUrl: COURSE_API,
     credentials: "include",
@@ -53,6 +53,21 @@ export const courseApi = createApi({
         url: `/${id}/lecture`,
         method: "GET",
       }),
+      providesTags: ["Refetch_Lecture"],
+    }),
+    editLecture: builder.mutation({
+      query: ({ title, videoInfo, isPreviewFree, courseId, lectureId }) => ({
+        url: `/${courseId}/lecture/${lectureId}`,
+        method: "POST",
+        body: { title, videoInfo, isPreviewFree },
+      }),
+    }),
+    removeLecture: builder.mutation({
+      query: (lectureId) => ({
+        url: `/lecture/${lectureId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Refetch_Lecture"],
     }),
   }),
 });
@@ -64,4 +79,6 @@ export const {
   useGetCourseByIdQuery,
   useCreateLectureMutation,
   useGetCourseLectureQuery,
+  useEditLectureMutation,
+  useRemoveLectureMutation,
 } = courseApi;

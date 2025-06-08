@@ -9,10 +9,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import {
+  useEditLectureMutation,
+  useRemoveLectureMutation,
+} from "@/features/api/courseapi";
+import { useNavigate, useParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const MEDIA_API = `http://localhost:8080/media`;
 
@@ -23,6 +29,15 @@ const LectureTab = () => {
   const [mediaProgress, setMediaProgress] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [buttonDisable, setButtonDisable] = useState(true);
+
+  const { courseId, lectureId } = useParams();
+
+  const [editLecture, { data, isLoading, error, isSuccess }] =
+    useEditLectureMutation();
+  const [
+    removeLecture,
+    { isLoading: removeLoading, isSuccess: removeSuccess },
+  ] = useRemoveLectureMutation();
 
   const config = {
     onUploadProgress: ({ loaded, total }: ProgressEvent) => {
@@ -52,7 +67,7 @@ const LectureTab = () => {
         if (res.data?.success) {
           setUploadVideoInfo({
             videoUrl: res.data?.data?.secure_url || res.data?.data?.url,
-            publicId: res.data?.data?.publicId,
+            publicId: res.data?.data?.public_id,
           });
           setButtonDisable(false);
           toast.success(res.data?.message);
@@ -66,6 +81,24 @@ const LectureTab = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message);
+    }
+    if (error) {
+      const message =
+        "data" in error
+          ? (error.data as { message?: string })?.message
+          : "Login Failed";
+      toast.error(message);
+    }
+    if (removeSuccess) {
+      toast.success("Lecture removed successfully");
+    }
+  }, [error, isSuccess, removeSuccess]);
+
   return (
     <Card>
       <CardHeader className="flex justify-between">
@@ -76,14 +109,49 @@ const LectureTab = () => {
           </CardDescription>
         </div>
         <div>
-          <Button variant={"destructive"}>Remove Lecture</Button>
+          {removeLoading ? (
+            <Button disabled variant={"destructive"}>
+              <Loader2 /> Please Wait...
+            </Button>
+          ) : (
+            <Button
+              variant={"destructive"}
+              onClick={async () => {
+                await removeLecture(lectureId);
+                if (removeSuccess) {
+                  navigate(`/instructor/course/${courseId}/lectures`, {
+                    replace: true,
+                  });
+                }
+              }}
+            >
+              Remove Lecture
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
-        <form className="space-y-4">
+        <form
+          className="space-y-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await editLecture({
+              title,
+              videoInfo: uploadVideoInfo,
+              isPreviewFree: isFree,
+              courseId,
+              lectureId,
+            });
+          }}
+        >
           <div className="flex flex-col gap-1">
             <Label>Title</Label>
-            <Input type="text" placeholder="Ex. VS code setup" />
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              type="text"
+              placeholder="Ex. VS code setup"
+            />
           </div>
           <div className="flex flex-col gap-1">
             <Label>
@@ -98,7 +166,11 @@ const LectureTab = () => {
             />
           </div>
           <div className="flex items-center space-x-2 my-2">
-            <Switch id="isPreviewFree" />
+            <Switch
+              checked={isFree}
+              onCheckedChange={setIsFree}
+              id="isPreviewFree"
+            />
             <Label htmlFor="isPreviewFree">Is this video FREE</Label>
           </div>
           {mediaProgress && (
@@ -108,7 +180,18 @@ const LectureTab = () => {
             </div>
           )}
           <div className="mt-4">
-            <Button type="submit">Update Lecture</Button>
+            {isLoading ? (
+              <>
+                <Button>
+                  <Loader2 className="animate-spin mr-2" />
+                  Please Wait...
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button type="submit">Update Lecture</Button>
+              </>
+            )}
           </div>
         </form>
       </CardContent>
