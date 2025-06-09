@@ -270,13 +270,6 @@ export const editLecture = async (
     const { title, videoInfo, isPreviewFree } = req.body;
     const { courseId, lectureId } = req.params;
 
-    if (!videoInfo) {
-      return res.status(404).json({
-        success: false,
-        message: "Video infor not found",
-      });
-    }
-
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
       return res.status(404).json({
@@ -286,8 +279,8 @@ export const editLecture = async (
     }
 
     if (title) lecture.title = title;
-    if (videoInfo.videoUrl) lecture.videoUrl = videoInfo.videoUrl;
-    if (videoInfo.publicId) lecture.publicId = videoInfo.publicId;
+    if (videoInfo?.videoUrl) lecture.videoUrl = videoInfo.videoUrl;
+    if (videoInfo?.publicId) lecture.publicId = videoInfo.publicId;
     if (isPreviewFree) lecture.isPreviewFree = isPreviewFree;
 
     await lecture.save();
@@ -376,6 +369,47 @@ export const getLectureById = async (
     console.log(error);
     return res.status(500).json({
       message: "Failed to load lecture data",
+      success: false,
+    });
+  }
+};
+
+export const togglePublishCourse = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { publish } = req.query;
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+        success: false,
+      });
+    }
+
+    if (course.lectures.length === 0) {
+      return res.status(401).json({
+        message:
+          "You can't publish this course, because you don't have any lectures",
+        success: false,
+      });
+    }
+
+    course.isPublished = publish === "true";
+    await course.save();
+
+    const resMessage = course.isPublished ? "Published" : "Unpublished";
+    return res.status(200).json({
+      message: `Course is ${resMessage}`,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to update status",
       success: false,
     });
   }

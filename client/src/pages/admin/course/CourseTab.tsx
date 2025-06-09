@@ -20,6 +20,7 @@ import {
 import {
   useEditCourseMutation,
   useGetCourseByIdQuery,
+  usePublishCourseMutation,
 } from "@/features/api/courseapi";
 import { CourseDetails } from "@/types/form";
 import { Loader2 } from "lucide-react";
@@ -28,17 +29,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const CourseTab = () => {
-  const isPublished = false;
   const navigate = useNavigate();
   const [previewThumbail, setPreviewThumbail] = useState<
     string | ArrayBuffer | null
   >(null);
   const { courseId } = useParams();
 
-  const { data: courseDataById, isLoading: courseByIdLoading } =
-    useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
+  const {
+    data: courseDataById,
+    isLoading: courseByIdLoading,
+    refetch,
+  } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
 
   const course = courseDataById?.course;
+  const isPublished = course?.isPublished;
   const [input, setInput] = useState<CourseDetails>({
     _id: courseId!,
     title: "",
@@ -99,6 +103,21 @@ const CourseTab = () => {
     }
   };
 
+  const [publishCourse] = usePublishCourseMutation();
+
+  const publishStatusHandler = async (action: string) => {
+    try {
+      const res = await publishCourse({ id: courseId, query: action });
+      if (res?.data) {
+        toast.success(res?.data?.message);
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update status");
+    }
+  };
+
   useEffect(() => {
     if (isSuccess) {
       toast.success(data?.message || "Course updated");
@@ -126,7 +145,13 @@ const CourseTab = () => {
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button variant={"outline"}>
+              <Button
+                disabled={course?.lectures?.length === 0}
+                variant={"outline"}
+                onClick={() =>
+                  publishStatusHandler(isPublished ? "false" : "true")
+                }
+              >
                 {isPublished ? "Unpublished" : "Published"}
               </Button>
               <Button>Remove Course</Button>

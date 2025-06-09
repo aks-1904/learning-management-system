@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import {
   useEditLectureMutation,
+  useGetLectureByIdQuery,
   useRemoveLectureMutation,
 } from "@/features/api/courseapi";
 import { useNavigate, useParams } from "react-router-dom";
@@ -31,6 +32,16 @@ const LectureTab = () => {
   const [buttonDisable, setButtonDisable] = useState(true);
 
   const { courseId, lectureId } = useParams();
+  const { data: lectureData } = useGetLectureByIdQuery(lectureId);
+  const lecture = lectureData?.lecture;
+
+  useEffect(()=>{
+    if(lecture){
+      setTitle(lecture?.title);
+      setIsFree(lecture?.isPreviewFree || false);
+      setUploadVideoInfo(lecture?.videoInfo);
+    }
+  }, [lecture])
 
   const [editLecture, { data, isLoading, error, isSuccess }] =
     useEditLectureMutation();
