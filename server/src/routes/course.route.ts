@@ -8,6 +8,7 @@ import {
   getInstructorCourses,
   getLectureById,
   getLectures,
+  getPublishedCourses,
   removeLecture,
   togglePublishCourse,
 } from "../controllers/course.controller.js";
@@ -30,5 +31,6 @@ router
 router.route("/lecture/:id").delete(isAuthenticated, removeLecture);
 router.route("/lecture/:id").get(isAuthenticated, getLectureById);
 router.route("/:id").patch(isAuthenticated, togglePublishCourse);
+router.route("/").get(isAuthenticated, getPublishedCourses);
 
 export default router;

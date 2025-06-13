@@ -14,7 +14,7 @@ const MyLearning = () => {
         ) : learningCourses.length === 0 ? (
           <p>You are not enrolled in any course</p>
         ) : (
-          learningCourses.map((_, idx) => <Course key={idx} />)
+          learningCourses.map((data, idx) => <Course course={data} key={idx} />)
         )}
       </div>
     </div>

@@ -27,12 +27,16 @@ export interface Course{
     thumbnail: string;
     enrolledStudents: User[] | [];
     lectures: any[];
-    creator: string;
+    creator: {
+        name: string;
+        profilePicture: string;
+    };
     isPublished: boolean;
     createdAt: string;
     updatedAt: string;
     __v: number;
     price: number;
+    level: string;
 }
 
 export interface CourseData{
